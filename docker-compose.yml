@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  loan-agent:
+    build: .
+    container_name: loan_eligibility_agent
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db:/app/db
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./Bank_Loan_DS_Project.xlsx:/app/Bank_Loan_DS_Project.xlsx
+      - ./.env:/app/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on: []
+    labels:
+      com.loan-agent.description: "Loan Eligibility Notification Agent"
+      com.loan-agent.version: "1.0.0"

@@ -1,0 +1,32 @@
+dataset:
+  path: "Bank_Loan_DS_Project.xlsx"
+  sheet_name: 0
+
+eligibility:
+  approved_tiers: ["P1", "P2"]
+  declined_tier: "P3"
+
+cooldown:
+  days: 7
+
+scheduler:
+  interval_hours: 1
+  timezone: "UTC"
+
+llm:
+  provider: "gemini"
+  gemini_model: "gemini-1.5-flash"
+  groq_model: "llama3-8b-8192"
+  ollama_base_url: "http://localhost:11434"
+  ollama_model: "llama3.2"
+  max_tokens: 1000
+  api_key_env: "GEMINI_API_KEY"
+
+notification:
+  id_format: "NOTIF-{date}-{prospect_id:05d}"
+  offer_validity_days: 30
+  default_language: "English"
+
+output:
+  log_csv: "output/notifications_log.csv"
+  sqlite_db: "db/notifications.db"

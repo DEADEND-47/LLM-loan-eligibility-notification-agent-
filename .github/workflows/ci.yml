@@ -1,0 +1,96 @@
+name: "CI - Loan Eligibility Agent"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create test directories and fixtures
+        run: |
+          mkdir -p db output logs
+          python -c "
+          import sqlite3
+          conn = sqlite3.connect('db/notifications.db')
+          conn.close()
+          "
+
+      - name: Create test .env file
+        run: |
+          echo "GEMINI_API_KEY=test_placeholder" > .env
+          echo "GROQ_API_KEY=test_placeholder" >> .env
+          echo "OLLAMA_API_URL=http://localhost:11434" >> .env
+
+      - name: Create minimal test Excel dataset
+        run: |
+          python -c "
+          import pandas as pd
+          data = {
+            'PROSPECTID': [1, 2, 3],
+            'Risk_Tier': ['P1', 'P2', 'P1'],
+            'Approved_Flag': ['P1', 'P2', 'P3'],
+            'Predicted_Risk': ['P1', 'P2', 'P1'],
+            'Recommended_Loan_Amount': [1000000, 500000, 200000],
+            'Interest_Rate_Pct': [8.5, 10.5, 8.5],
+            'Tenure_Years': [5, 4, 5],
+            'Repayment_Method': ['EMI Fixed Monthly', 'EMI Fixed Monthly', 'EMI Fixed Monthly'],
+            'Total_Interest_Payable': [230000, 115000, 46000],
+            'Total_Amount_Payable': [1230000, 615000, 246000],
+            'Monthly_EMI': [20500, 12812, 4100],
+            'Reason_For_Approval': [
+              'Strong credit score; No missed payments',
+              'Stable income; No delinquency',
+              'Insufficient score'
+            ],
+            'Credit_Health_Score': [380.0, None, 250.0],
+            'Income_TL_Ratio': [25000, 15000, 5000]
+          }
+          df = pd.DataFrame(data)
+          df.to_excel('Bank_Loan_DS_Project.xlsx', index=False)
+          print('Test dataset created')
+          "
+
+      - name: Run Ruff linting
+        run: ruff check agent/ --ignore E501
+        continue-on-error: true
+
+      - name: Run Black format check
+        run: black --check agent/
+        continue-on-error: true
+
+      - name: Run MyPy type checking
+        run: mypy agent/ --ignore-missing-imports
+        continue-on-error: true
+
+      - name: Run pytest
+        run: pytest tests/ -v --tb=short
+        env:
+          GEMINI_API_KEY: test_placeholder
+          GROQ_API_KEY: test_placeholder
+          OLLAMA_API_URL: http://localhost:11434
+          PYTHONPATH: .
