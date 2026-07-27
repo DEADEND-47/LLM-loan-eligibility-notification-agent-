@@ -12,13 +12,17 @@ ALENA is a production-grade automated middleware agent designed to manage, trans
 ## Features
 
 1. **Multi-provider LLM Abstraction:** Seamlessly switch between Google Gemini, Groq, and offline Ollama via simple configuration files.
-2. **Watermark-based Incremental Processing:** Keeps track of the last processed customer row to process new data increments efficiently.
+2. **Watermark-based Incremental Processing:** Keeps track of the last processed customer row to process new data increments efficiently, utilizing absolute path resolution to prevent context resetting.
 3. **7-Day Cooldown Deduplication:** SQLite-based registry guarantees customers don't receive spam or redundant messages within a 7-day period.
-4. **RBI-Compliant Explainability:** Automatically translates raw underwriting logic strings into user-friendly bullet points detailing credit score rankings and tier classifications.
-5. **Multi-language Support:** Automatically detects customer language preferences and generates notifications in 8 major Indian languages.
-6. **FastAPI Integration:** Provides operational endpoints to trigger runs, fetch notification statistics, verify connection health, and query running logs.
-7. **Docker Ready:** Complete container configuration including health checks and isolated local directory mappings.
-8. **Full Audit Trail:** Every transaction is logged sequentially to database registries, CSV log files, and rotating log outputs.
+4. **Unique Sequential ID System:** Notification IDs are generated sequentially (e.g. `NOTIF-YYYYMMDD-00001`) from SQLite sequence records, preventing ID collisions.
+5. **Real-time Status Tracking & Excel Sync:** Captures detailed processing statuses (`Sent`, `Skipped - Already Notified`, `Skipped - Declined (P3)`, `Skipped - Cooldown Active`, `Skipped - Missing Data`, `Failed - LLM Error`, `Failed - WhatsApp Error`) and syncs them to both SQLite and the Excel report in real-time.
+6. **Robust Twilio WhatsApp Sandbox Formatter:** Automatically sanitizes and maps 10-digit Indian recipient numbers into correct E.164 formats (`whatsapp:+918810612756`) to ensure delivery and handle sandbox opt-in checks (Error 63015).
+7. **RBI-Compliant Explainability:** Automatically translates raw underwriting logic strings into user-friendly bullet points detailing credit score rankings and tier classifications.
+8. **Multi-language Support:** Automatically detects customer language preferences and generates notifications in 8 major Indian languages.
+9. **FastAPI Integration:** Provides operational endpoints to trigger runs, fetch notification statistics, verify connection health, and query running logs.
+10. **Docker Ready:** Complete container configuration including health checks and isolated local directory mappings.
+11. **Full Audit Trail:** Every transaction is logged sequentially to database registries, CSV log files, and rotating log outputs.
+
 
 ---
 
@@ -274,13 +278,13 @@ Adding regional languages to ALENA is straightforward:
 ## Notification ID Format
 
 ALENA creates tracing notification keys following this structure:
-`NOTIF-{YYYYMMDD}-{PROSPECTID zero-padded to 5 digits}`
+`NOTIF-{YYYYMMDD}-{Sequence number zero-padded to 5 digits}`
 
 ### Examples:
-- `NOTIF-20260727-00001` (Prospect ID 1 processed on July 27, 2026)
-- `NOTIF-20260727-38343` (Prospect ID 38343 processed on July 27, 2026)
+- `NOTIF-20260727-00001` (First notification sent)
+- `NOTIF-20260727-00015` (15th notification sent)
 
-This format allows customer support or auditors to map any message back to the specific row in the credit underwriting database.
+This format ensures that Notification IDs are globally unique, sequentially incremented, and never duplicated even if a customer is skipped or the application restarts. This allows customer support or auditors to track messages back to database history.
 
 ---
 
