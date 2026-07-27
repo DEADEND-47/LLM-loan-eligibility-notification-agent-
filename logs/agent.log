@@ -12,3 +12,233 @@
 [2026-07-27 22:28:13] [INFO] [apscheduler.scheduler] Scheduler started
 [2026-07-27 22:28:13] [INFO] [root] Scheduler started with interval of 1.0 hours
 [2026-07-27 22:28:24] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:43:03] [INFO] [root] Logging initialized
+[2026-07-28 00:43:03] [INFO] [agent.config] All output directories verified
+[2026-07-28 00:43:03] [INFO] [agent.llm.factory] Successfully initialized LLM provider: GroqLLM
+[2026-07-28 00:43:03] [INFO] [agent.scheduler] Pipeline started — checking for new records
+[2026-07-28 00:43:13] [INFO] [agent.loader] Successfully loaded 38343 rows from Excel dataset.
+[2026-07-28 00:43:13] [INFO] [agent.loader] Last watermark read from SQLite: 11
+[2026-07-28 00:43:13] [INFO] [agent.loader] Number of new records selected: 38334
+[2026-07-28 00:43:13] [INFO] [agent.loader] Found 38334 new records to process (Watermark: 11).
+[2026-07-28 00:43:13] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 12
+[2026-07-28 00:43:13] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 12: False
+[2026-07-28 00:43:13] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:43:13] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00010
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:43:13] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:43:14] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:43:14] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1487', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:13:14 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQ1b70338e9bb78e269de406126c8fe010', 'Twilio-Request-Duration': '0.141', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 b0f8455cc4557d0eb768236b7fae9c06.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'IMpGCef7GR2EFv6l3FRYC0mhF8iT1BE9rScnkL5ci5GZK7TM5LjTgA==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:43:14] [INFO] [agent.whatsapp_sender] WhatsApp notification sent successfully! SID: SM1b70338e9bb78e269de406126c8fe010
+[2026-07-28 00:43:14] [INFO] [agent.loader] Watermark after each successful notification: 12
+[2026-07-28 00:43:14] [INFO] [agent.loader] Watermark updated to PROSPECTID 12
+[2026-07-28 00:43:39] [INFO] [agent.loader] Successfully synchronized SQLite notification records back to Excel dataset.
+[2026-07-28 00:43:39] [INFO] [agent.scheduler] PROSPECTID 12: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:43:39] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 13
+[2026-07-28 00:43:39] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 13: False
+[2026-07-28 00:43:39] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:43:39] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00011
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:43:39] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:43:40] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:43:40] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1746', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:13:40 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQ4b937333a5176b3e1786a256ca652ee5', 'Twilio-Request-Duration': '0.131', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 e84e3d2180ad6d18a31ea765a099b5b4.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'qUVYYf0qSm5zCgnGjyegCz_gFJcYA33fyIC2lNgQl2bkbbUHAvCb5Q==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:43:40] [INFO] [agent.whatsapp_sender] WhatsApp notification sent successfully! SID: SM4b937333a5176b3e1786a256ca652ee5
+[2026-07-28 00:43:40] [INFO] [agent.loader] Watermark after each successful notification: 13
+[2026-07-28 00:43:40] [INFO] [agent.loader] Watermark updated to PROSPECTID 13
+[2026-07-28 00:44:06] [INFO] [agent.loader] Successfully synchronized SQLite notification records back to Excel dataset.
+[2026-07-28 00:44:06] [INFO] [agent.scheduler] PROSPECTID 13: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:44:06] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 14
+[2026-07-28 00:44:06] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 14: False
+[2026-07-28 00:44:07] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:44:07] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00012
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:44:07] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1500', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:14:07 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQd5147a827e46a970f3da0d4837f5c07b', 'Twilio-Request-Duration': '0.093', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 31d74c8d65c5b9b59345d2b28c72aa24.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'BVWrB0gDnX5x7z4bImDplm3N9-eevAeCOAtDCD2Bmw30R4K7jzJyfg==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:44:07] [INFO] [agent.whatsapp_sender] WhatsApp notification sent successfully! SID: SMd5147a827e46a970f3da0d4837f5c07b
+[2026-07-28 00:44:07] [INFO] [agent.loader] Watermark after each successful notification: 14
+[2026-07-28 00:44:07] [INFO] [agent.loader] Watermark updated to PROSPECTID 14
+[2026-07-28 00:44:38] [INFO] [agent.loader] Successfully synchronized SQLite notification records back to Excel dataset.
+[2026-07-28 00:44:38] [INFO] [agent.scheduler] PROSPECTID 14: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:44:38] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 15
+[2026-07-28 00:44:38] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 15: False
+[2026-07-28 00:44:38] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:44:38] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00013
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:44:38] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:44:39] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:44:39] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1499', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:14:39 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQ6593899ae15c451fb827e26f94a38891', 'Twilio-Request-Duration': '0.122', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 1bf9bb4ffb8bb50e9e8dab77ca8a313e.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'QlHuxK8t0CmMY2E8AJIydOpM2uCREbUpG0zYk5aSRkTLzMRfDmGr6g==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:44:39] [INFO] [agent.whatsapp_sender] WhatsApp notification sent successfully! SID: SM6593899ae15c451fb827e26f94a38891
+[2026-07-28 00:44:39] [INFO] [agent.loader] Watermark after each successful notification: 15
+[2026-07-28 00:44:39] [INFO] [agent.loader] Watermark updated to PROSPECTID 15
+[2026-07-28 00:45:08] [INFO] [agent.loader] Successfully synchronized SQLite notification records back to Excel dataset.
+[2026-07-28 00:45:08] [INFO] [agent.scheduler] PROSPECTID 15: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:45:08] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 17
+[2026-07-28 00:45:08] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 17: False
+[2026-07-28 00:45:09] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:45:09] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00014
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:45:09] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:45:10] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:45:10] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1808', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:15:10 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQfdee6f27dc35d121a042678415d80820', 'Twilio-Request-Duration': '0.119', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 fc93b40927ecc3b1d5e4fffeca69b042.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'YipqYk8jWgr02_PkFsjZHL_UdJRO3TWt3KeFlvQzLLlJt0i314OgQQ==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:45:10] [INFO] [agent.whatsapp_sender] WhatsApp notification sent successfully! SID: SMfdee6f27dc35d121a042678415d80820
+[2026-07-28 00:45:10] [INFO] [agent.loader] Watermark after each successful notification: 17
+[2026-07-28 00:45:10] [INFO] [agent.loader] Watermark updated to PROSPECTID 17
+[2026-07-28 00:55:00] [INFO] [root] Logging initialized
+[2026-07-28 00:55:00] [INFO] [agent.config] All output directories verified
+[2026-07-28 00:55:01] [INFO] [agent.llm.factory] Successfully initialized LLM provider: GroqLLM
+[2026-07-28 00:55:01] [INFO] [agent.scheduler] Pipeline started — checking for new records
+[2026-07-28 00:55:14] [INFO] [agent.loader] Successfully loaded 38343 rows from Excel dataset.
+[2026-07-28 00:55:14] [INFO] [agent.loader] Last watermark read from SQLite: 17
+[2026-07-28 00:55:14] [INFO] [agent.loader] Number of new records selected: 38329
+[2026-07-28 00:55:14] [INFO] [agent.loader] Found 38329 new records to process (Watermark: 17).
+[2026-07-28 00:55:14] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 18
+[2026-07-28 00:55:14] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 18: False
+[2026-07-28 00:55:15] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:55:15] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00015
+[2026-07-28 00:55:15] [INFO] [agent.whatsapp_sender] Preparing to dispatch WhatsApp message via Twilio Sandbox:
+[2026-07-28 00:55:15] [INFO] [agent.whatsapp_sender]   Sender: whatsapp:+14155238886
+[2026-07-28 00:55:15] [INFO] [agent.whatsapp_sender]   Recipient: whatsapp:+918810612756
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:55:15] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:55:16] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:55:16] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1452', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:25:16 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQ1e501264a947cb1a5ffa0001025dd9d8', 'Twilio-Request-Duration': '0.133', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 c13661f9455806125a56201b0ccd2b96.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'hjYNW_eZTIUAhTi1NptM1Ph1VL67Cj7MAyKdmlj_v1dEati27XcoAA==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:55:16] [INFO] [agent.whatsapp_sender] Twilio API Response:
+[2026-07-28 00:55:16] [INFO] [agent.whatsapp_sender]   Message SID: SM1e501264a947cb1a5ffa0001025dd9d8
+[2026-07-28 00:55:16] [INFO] [agent.whatsapp_sender]   Status: queued
+[2026-07-28 00:55:16] [INFO] [agent.whatsapp_sender]   Error Code: None
+[2026-07-28 00:55:16] [INFO] [agent.whatsapp_sender]   Error Message: None
+[2026-07-28 00:55:16] [INFO] [agent.loader] Watermark after each successful notification: 18
+[2026-07-28 00:55:16] [INFO] [agent.loader] Watermark updated to PROSPECTID 18
+[2026-07-28 00:55:29] [ERROR] [agent.loader] Failed to synchronize database records to Excel: [Errno 13] Permission denied: 'Bank_Loan_DS_Project.xlsx'
+[2026-07-28 00:55:29] [INFO] [agent.scheduler] PROSPECTID 18: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:55:29] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 19
+[2026-07-28 00:55:29] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 19: False
+[2026-07-28 00:55:30] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:55:30] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00016
+[2026-07-28 00:55:30] [INFO] [agent.whatsapp_sender] Preparing to dispatch WhatsApp message via Twilio Sandbox:
+[2026-07-28 00:55:30] [INFO] [agent.whatsapp_sender]   Sender: whatsapp:+14155238886
+[2026-07-28 00:55:30] [INFO] [agent.whatsapp_sender]   Recipient: whatsapp:+918810612756
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:55:30] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:55:31] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:55:31] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1618', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:25:31 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQd609fa134fc62c0fa630c95c707ede6e', 'Twilio-Request-Duration': '0.122', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 0587d29bba1a416012edbf0b64a7e34c.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'CNM9C0B83jng8uKRFR0PPEM7ez5AY2-RxjmcL_9lKhMeaJmI6ItkhA==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:55:31] [INFO] [agent.whatsapp_sender] Twilio API Response:
+[2026-07-28 00:55:31] [INFO] [agent.whatsapp_sender]   Message SID: SMd609fa134fc62c0fa630c95c707ede6e
+[2026-07-28 00:55:31] [INFO] [agent.whatsapp_sender]   Status: queued
+[2026-07-28 00:55:31] [INFO] [agent.whatsapp_sender]   Error Code: None
+[2026-07-28 00:55:31] [INFO] [agent.whatsapp_sender]   Error Message: None
+[2026-07-28 00:55:31] [INFO] [agent.loader] Watermark after each successful notification: 19
+[2026-07-28 00:55:31] [INFO] [agent.loader] Watermark updated to PROSPECTID 19
+[2026-07-28 00:55:55] [ERROR] [agent.loader] Failed to synchronize database records to Excel: [Errno 13] Permission denied: 'Bank_Loan_DS_Project.xlsx'
+[2026-07-28 00:55:55] [INFO] [agent.scheduler] PROSPECTID 19: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:55:55] [INFO] [agent.scheduler] Reached maximum send limit of 2 notifications. Stopping pipeline execution for this run.
+[2026-07-28 00:55:55] [INFO] [agent.scheduler] Pipeline complete — Sent: 2, Skipped: 0, Errors: 0
+[2026-07-28 00:56:06] [INFO] [root] Logging initialized
+[2026-07-28 00:56:06] [INFO] [agent.config] All output directories verified
+[2026-07-28 00:56:06] [INFO] [agent.llm.factory] Successfully initialized LLM provider: GroqLLM
+[2026-07-28 00:56:06] [INFO] [agent.scheduler] Pipeline started — checking for new records
+[2026-07-28 00:56:20] [INFO] [agent.loader] Successfully loaded 38343 rows from Excel dataset.
+[2026-07-28 00:56:20] [INFO] [agent.loader] Last watermark read from SQLite: 19
+[2026-07-28 00:56:20] [INFO] [agent.loader] Number of new records selected: 38327
+[2026-07-28 00:56:20] [INFO] [agent.loader] Found 38327 new records to process (Watermark: 19).
+[2026-07-28 00:56:20] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 20
+[2026-07-28 00:56:20] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 20: False
+[2026-07-28 00:56:21] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:56:21] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00017
+[2026-07-28 00:56:21] [INFO] [agent.whatsapp_sender] Preparing to dispatch WhatsApp message via Twilio Sandbox:
+[2026-07-28 00:56:21] [INFO] [agent.whatsapp_sender]   Sender: whatsapp:+14155238886
+[2026-07-28 00:56:21] [INFO] [agent.whatsapp_sender]   Recipient: whatsapp:+918810612756
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:56:21] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:56:22] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:56:22] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1615', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:26:22 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQe94033bb5a90a8f1df486189c38839ce', 'Twilio-Request-Duration': '0.135', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 b0f8455cc4557d0eb768236b7fae9c06.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'XY_cCiMb3YncR5o0kaAoC_whHx6gfqUFCpCDfzKZJKSM3RTFQsnFhw==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:56:22] [INFO] [agent.whatsapp_sender] Twilio API Response:
+[2026-07-28 00:56:22] [INFO] [agent.whatsapp_sender]   Message SID: SMe94033bb5a90a8f1df486189c38839ce
+[2026-07-28 00:56:22] [INFO] [agent.whatsapp_sender]   Status: queued
+[2026-07-28 00:56:22] [INFO] [agent.whatsapp_sender]   Error Code: None
+[2026-07-28 00:56:22] [INFO] [agent.whatsapp_sender]   Error Message: None
+[2026-07-28 00:56:22] [INFO] [agent.loader] Watermark after each successful notification: 20
+[2026-07-28 00:56:22] [INFO] [agent.loader] Watermark updated to PROSPECTID 20
+[2026-07-28 00:56:36] [ERROR] [agent.loader] Failed to synchronize database records to Excel: [Errno 13] Permission denied: 'Bank_Loan_DS_Project.xlsx'
+[2026-07-28 00:56:36] [INFO] [agent.scheduler] PROSPECTID 20: Sent. Reason: Notification generated and sent successfully.
+[2026-07-28 00:56:36] [INFO] [agent.scheduler] Current prospect being processed: PROSPECTID 21
+[2026-07-28 00:56:36] [INFO] [agent.scheduler] Duplicate-check result for PROSPECTID 21: False
+[2026-07-28 00:56:37] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+[2026-07-28 00:56:37] [INFO] [agent.generator] Notification message generated successfully for NOTIF-20260727-00018
+[2026-07-28 00:56:37] [INFO] [agent.whatsapp_sender] Preparing to dispatch WhatsApp message via Twilio Sandbox:
+[2026-07-28 00:56:37] [INFO] [agent.whatsapp_sender]   Sender: whatsapp:+14155238886
+[2026-07-28 00:56:37] [INFO] [agent.whatsapp_sender]   Recipient: whatsapp:+918810612756
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] -- BEGIN Twilio API Request --
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] POST Request: https://api.twilio.com/2010-04-01/Accounts/AC_PLACEHOLDER_SID/Messages.json
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] Headers:
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] User-Agent : twilio-python/9.0.4 (Windows AMD64) Python/3.13.7
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] X-Twilio-Client : python-9.0.4
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] Accept-Charset : utf-8
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] Content-Type : application/x-www-form-urlencoded
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] Accept : application/json
+[2026-07-28 00:56:37] [INFO] [twilio.http_client] -- END Twilio API Request --
+[2026-07-28 00:56:39] [INFO] [twilio.http_client] Response Status Code: 201
+[2026-07-28 00:56:39] [INFO] [twilio.http_client] Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1610', 'Connection': 'keep-alive', 'Date': 'Mon, 27 Jul 2026 19:26:39 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQea8392ec2ca286d660510399af79b247', 'Twilio-Request-Duration': '0.137', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 42c5ae027ccde3a3511a5e388b43c7ae.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'DEL54-P3', 'X-Amz-Cf-Id': 'u-QceTxVZUV7AeWJSVx9Iqc53LaGIk3sweLVRm-1JqADdch21TzGkg==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+[2026-07-28 00:56:39] [INFO] [agent.whatsapp_sender] Twilio API Response:
+[2026-07-28 00:56:39] [INFO] [agent.whatsapp_sender]   Message SID: SMea8392ec2ca286d660510399af79b247
+[2026-07-28 00:56:39] [INFO] [agent.whatsapp_sender]   Status: queued
+[2026-07-28 00:56:39] [INFO] [agent.whatsapp_sender]   Error Code: None
+[2026-07-28 00:56:39] [INFO] [agent.whatsapp_sender]   Error Message: None
+[2026-07-28 00:56:39] [INFO] [agent.loader] Watermark after each successful notification: 21
+[2026-07-28 00:56:39] [INFO] [agent.loader] Watermark updated to PROSPECTID 21
