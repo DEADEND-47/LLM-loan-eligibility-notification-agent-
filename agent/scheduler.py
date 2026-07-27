@@ -65,7 +65,6 @@ class AgentScheduler:
             db_path=self.db_path,
             cooldown_days=int(self.cooldown_config["days"])
         )
-        self.loader.recover_db_from_excel()
         self.explainer = ExplainabilityLayer()
         self.multilang = LanguageSelector(
             default_lang=self.notification_config["default_language"]
@@ -133,7 +132,6 @@ class AgentScheduler:
         except Exception as e:
             self.logger.error(f"Pipeline aborting. Failed to load Excel data: {str(e)}")
             return {"sent": 0, "skipped": 0, "errors": 0, "total_processed": 0, "max_prospect_id": 0}
-
         new_records_df = self.loader.get_new_records(df)
         if new_records_df.empty:
             self.logger.info(
@@ -142,7 +140,7 @@ class AgentScheduler:
             return {"sent": 0, "skipped": 0, "errors": 0, "total_processed": 0, "max_prospect_id": 0}
 
         max_processed_id = 0
-        
+
         # Get next sequence number for unique Notification IDs
         next_seq = self.dedup.get_next_sequence_number()
 
@@ -156,16 +154,25 @@ class AgentScheduler:
                 break
             row = pandas_row.to_dict()
             prospect_id = int(row["PROSPECTID"])
-            self.logger.info(f"Processing PROSPECTID {prospect_id}")
+            self.logger.info(f"Current prospect being processed: PROSPECTID {prospect_id}")
 
             try:
+                # Duplicate-check result.
+                is_dup = self.dedup.has_been_notified(prospect_id)
+                self.logger.info(f"Duplicate-check result for PROSPECTID {prospect_id}: {is_dup}")
+
                 # Requirement 3: Check database first. If already successfully notified, skip them.
-                if self.dedup.has_been_notified(prospect_id):
+                if is_dup:
                     self.logger.info(f"PROSPECTID {prospect_id} already notified successfully. Skipping.")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
                     self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     continue
 
                 # Check eligibility
@@ -185,6 +192,11 @@ class AgentScheduler:
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
                     self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     continue
 
                 # Check cooldown
@@ -202,6 +214,11 @@ class AgentScheduler:
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
                     self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     continue
 
                 # Language detection
@@ -240,6 +257,11 @@ class AgentScheduler:
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
                     self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     continue
 
                 # Log results to CSV audit
@@ -276,6 +298,13 @@ class AgentScheduler:
                 
                 # Update watermark immediately (Requirement 6: crash resilience)
                 self.loader.update_watermark(prospect_id)
+                
+                # Update Excel immediately (Requirement 6)
+                try:
+                    self.loader.sync_db_to_excel()
+                except Exception as sync_err:
+                    self.logger.error(f"Excel sync failed: {str(sync_err)}")
+                    
                 self.logger.info(f"Notification generated: {notification_id} | Lang: {language}")
 
             except Exception as row_err:
@@ -287,17 +316,12 @@ class AgentScheduler:
                 max_processed_id = max(max_processed_id, prospect_id)
                 # Update watermark immediately (Requirement 6: crash resilience)
                 self.loader.update_watermark(prospect_id)
+                # Update Excel immediately (Requirement 6)
+                try:
+                    self.loader.sync_db_to_excel()
+                except Exception as sync_err:
+                    self.logger.error(f"Excel sync failed: {str(sync_err)}")
                 continue
-
-        # Step 5: Update watermark
-        if max_processed_id > 0:
-            self.loader.update_watermark(max_processed_id)
-
-        # Step 6: Synchronize database states back to Excel file
-        try:
-            self.loader.sync_db_to_excel()
-        except Exception as sync_err:
-            self.logger.error(f"Excel sync failed: {str(sync_err)}")
 
         self.logger.info(f"Pipeline complete — Sent: {sent}, Skipped: {skipped}, Errors: {errors}")
 

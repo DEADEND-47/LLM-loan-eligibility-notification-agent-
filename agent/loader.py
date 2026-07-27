@@ -108,6 +108,8 @@ class DataLoader:
             cursor.execute("SELECT last_prospect_id FROM watermark WHERE id = 1")
             last_prospect_id = cursor.fetchone()[0]
             
+            self.logger.info(f"Last watermark read from SQLite: {last_prospect_id}")
+            
             # If notifications table exists, check the maximum prospect_id recorded.
             # If the database and Excel disagree, treat SQLite as the source of truth.
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='notifications'")
@@ -126,6 +128,8 @@ class DataLoader:
 
             filtered_df = df[df["PROSPECTID"] > last_prospect_id]
             count = len(filtered_df)
+            
+            self.logger.info(f"Number of new records selected: {count}")
             
             if count > 0:
                 self.logger.info(f"Found {count} new records to process (Watermark: {last_prospect_id}).")
@@ -148,6 +152,7 @@ class DataLoader:
             cursor = conn.cursor()
             cursor.execute("UPDATE watermark SET last_prospect_id = ? WHERE id = 1", (max_id,))
             conn.commit()
+            self.logger.info(f"Watermark after each successful notification: {max_id}")
             self.logger.info(f"Watermark updated to PROSPECTID {max_id}")
         finally:
             conn.close()

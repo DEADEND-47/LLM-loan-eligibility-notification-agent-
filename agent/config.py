@@ -44,9 +44,12 @@ def get_db_path(config: dict) -> str:
         str: Absolute or relative path to the SQLite database.
     """
     db_path = config["output"]["sqlite_db"]
-    parent = Path(db_path).parent
-    os.makedirs(parent, exist_ok=True)
-    return db_path
+    path = Path(db_path)
+    if not path.is_absolute():
+        project_root = Path(__file__).resolve().parent.parent
+        path = (project_root / db_path).resolve()
+    os.makedirs(path.parent, exist_ok=True)
+    return str(path)
 
 def get_csv_path(config: dict) -> str:
     """Extract and resolve the CSV log file path.
@@ -60,9 +63,12 @@ def get_csv_path(config: dict) -> str:
         str: Absolute or relative path to the CSV log file.
     """
     csv_path = config["output"]["log_csv"]
-    parent = Path(csv_path).parent
-    os.makedirs(parent, exist_ok=True)
-    return csv_path
+    path = Path(csv_path)
+    if not path.is_absolute():
+        project_root = Path(__file__).resolve().parent.parent
+        path = (project_root / csv_path).resolve()
+    os.makedirs(path.parent, exist_ok=True)
+    return str(path)
 
 def get_log_path() -> str:
     """Resolve and prepare the logging directory and file path.
