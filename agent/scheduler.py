@@ -14,6 +14,7 @@ from agent.multilang import LanguageSelector
 from agent.generator import MessageGenerator
 from agent.llm.factory import create_llm_provider
 from agent.llm.base import LLMProviderError
+from agent.whatsapp_sender import send_whatsapp
 
 CSV_HEADERS = [
     "notification_id",
@@ -196,6 +197,7 @@ class AgentScheduler:
                         language=language,
                         enriched_reason=enriched_reason
                     )
+                    send_whatsapp(message_content)
                 except LLMProviderError as l_err:
                     self.logger.critical(
                         f"LLM Provider generation failed for PROSPECTID {prospect_id}: {str(l_err)}"
