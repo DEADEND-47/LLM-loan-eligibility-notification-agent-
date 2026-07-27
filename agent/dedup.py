@@ -40,17 +40,25 @@ class DedupManager:
                     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     language TEXT NOT NULL,
                     status TEXT NOT NULL,
-                    channel TEXT NOT NULL DEFAULT 'WhatsApp'
+                    channel TEXT NOT NULL DEFAULT 'WhatsApp',
+                    processing_status TEXT,
+                    processing_remark TEXT
                 )
                 """
             )
             
-            # Check if channel column exists (migration support)
+            # Check if columns exist (migration support)
             cursor.execute("PRAGMA table_info(notifications)")
             columns = [col[1] for col in cursor.fetchall()]
             if "channel" not in columns:
                 self.logger.info("Migrating database: adding 'channel' column to notifications table")
                 cursor.execute("ALTER TABLE notifications ADD COLUMN channel TEXT NOT NULL DEFAULT 'WhatsApp'")
+            if "processing_status" not in columns:
+                self.logger.info("Migrating database: adding 'processing_status' column to notifications table")
+                cursor.execute("ALTER TABLE notifications ADD COLUMN processing_status TEXT")
+            if "processing_remark" not in columns:
+                self.logger.info("Migrating database: adding 'processing_remark' column to notifications table")
+                cursor.execute("ALTER TABLE notifications ADD COLUMN processing_remark TEXT")
             
             conn.commit()
         finally:
@@ -105,7 +113,9 @@ class DedupManager:
         tier: str,
         language: str,
         status: str,
-        channel: str = "WhatsApp"
+        channel: str = "WhatsApp",
+        processing_status: str = "",
+        processing_remark: str = ""
     ) -> None:
         """Log a communication attempt (sent or skipped) to the SQLite registry database.
 
@@ -116,6 +126,8 @@ class DedupManager:
             language (str): Target language of the message.
             status (str): Outcome status (sent, skipped_cooldown, skipped_declined).
             channel (str): Dispatch channel used (e.g. WhatsApp, N/A).
+            processing_status (str): The processing status state.
+            processing_remark (str): Short explanation of the outcome reason.
         """
         conn = self._get_connection()
         try:
@@ -123,13 +135,13 @@ class DedupManager:
             sent_at_iso = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
             cursor.execute(
                 """
-                INSERT OR REPLACE INTO notifications (prospect_id, notification_id, tier, sent_at, language, status, channel)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO notifications (prospect_id, notification_id, tier, sent_at, language, status, channel, processing_status, processing_remark)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (prospect_id, notification_id, tier, sent_at_iso, language, status, channel)
+                (prospect_id, notification_id, tier, sent_at_iso, language, status, channel, processing_status, processing_remark)
             )
             conn.commit()
-            self.logger.debug(f"Recorded {status} via {channel} for PROSPECTID {prospect_id}")
+            self.logger.debug(f"Recorded {status} via {channel} (Processing_Status: {processing_status}) for PROSPECTID {prospect_id}")
         except Exception as e:
             self.logger.error(f"Failed to record notification for PROSPECTID {prospect_id}: {str(e)}")
         finally:

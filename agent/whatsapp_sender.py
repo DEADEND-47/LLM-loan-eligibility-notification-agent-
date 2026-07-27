@@ -45,3 +45,4 @@ def send_whatsapp(message: str, to_number: Optional[str] = None) -> None:
         logger.info(f"WhatsApp notification sent successfully! SID: {response.sid}")
     except Exception as e:
         logger.error(f"Failed to send WhatsApp message via Twilio: {str(e)}")
+        raise e

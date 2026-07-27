@@ -3,7 +3,7 @@ import logging
 import os
 import traceback
 from datetime import datetime, timezone
-from typing import Dict, Any
+import pandas as pd
 
 from agent.config import load_config, setup_directories
 from agent.loader import DataLoader
@@ -163,7 +163,7 @@ class AgentScheduler:
 
                 # Requirement 3: Check database first. If already successfully notified, skip them.
                 if is_dup:
-                    self.logger.info(f"PROSPECTID {prospect_id} already notified successfully. Skipping.")
+                    self.logger.info(f"PROSPECTID {prospect_id}: Skipped - Already Notified. Reason: Customer was successfully notified in a previous run.")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
@@ -175,6 +175,35 @@ class AgentScheduler:
                         self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     continue
 
+                # Requirement 3 (Missing Data): Check if contact number is missing or empty.
+                contact_no = row.get("Contact_No")
+                if pd.isna(contact_no) or str(contact_no).strip() == "":
+                    self.dedup.record_notification(
+                        prospect_id=prospect_id,
+                        notification_id="",
+                        tier=str(row.get("Approved_Flag", "N/A")),
+                        language="N/A",
+                        status="skipped_missing_data",
+                        channel="N/A",
+                        processing_status="Skipped - Missing Data",
+                        processing_remark="Skipped because contact number is missing or empty."
+                    )
+                    self.logger.warning(f"PROSPECTID {prospect_id}: Skipped - Missing Data. Reason: Contact number is missing or empty.")
+                    skipped += 1
+                    max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
+                    continue
+
+                contact_str = str(contact_no).strip()
+                if contact_str.endswith(".0"):
+                    contact_str = contact_str[:-2]
+
                 # Check eligibility
                 eligibility_dict = self.eligibility.check(row)
                 if eligibility_dict is None:
@@ -185,9 +214,11 @@ class AgentScheduler:
                         tier=str(row.get("Approved_Flag", "P3")),
                         language="N/A",
                         status="skipped_declined",
-                        channel="N/A"
+                        channel="N/A",
+                        processing_status="Skipped - Declined (P3)",
+                        processing_remark="Skipped because customer risk tier is P3 (declined)."
                     )
-                    self.logger.warning(f"Skipped PROSPECTID {prospect_id} — declined (P3)")
+                    self.logger.warning(f"PROSPECTID {prospect_id}: Skipped - Declined (P3). Reason: Risk tier is P3.")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
@@ -207,9 +238,11 @@ class AgentScheduler:
                         tier=eligibility_dict["tier"],
                         language="N/A",
                         status="skipped_cooldown",
-                        channel="N/A"
+                        channel="N/A",
+                        processing_status="Skipped - Cooldown Active",
+                        processing_remark="Skipped because a notification was recently sent within the 7-day cooldown period."
                     )
-                    self.logger.warning(f"Skipped PROSPECTID {prospect_id} — in cooldown")
+                    self.logger.warning(f"PROSPECTID {prospect_id}: Skipped - Cooldown Active. Reason: Cooldown period of 7 days is active.")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
@@ -240,7 +273,7 @@ class AgentScheduler:
                         language=language,
                         enriched_reason=enriched_reason
                     )
-                    send_whatsapp(message_content)
+                    send_whatsapp(message_content, to_number=contact_str)
                 except LLMProviderError as l_err:
                     self.logger.critical(
                         f"LLM Provider generation failed for PROSPECTID {prospect_id}: {str(l_err)}"
@@ -251,8 +284,36 @@ class AgentScheduler:
                         tier=eligibility_dict["tier"],
                         language=language,
                         status="api_error",
-                        channel="WhatsApp"
+                        channel="WhatsApp",
+                        processing_status="Failed - LLM Error",
+                        processing_remark=f"Failed due to LLM provider generation error: {str(l_err)}"
                     )
+                    self.logger.error(f"PROSPECTID {prospect_id}: Failed - LLM Error. Reason: LLM generation failed.")
+                    errors += 1
+                    max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
+                    # Update Excel immediately (Requirement 6)
+                    try:
+                        self.loader.sync_db_to_excel()
+                    except Exception as sync_err:
+                        self.logger.error(f"Excel sync failed: {str(sync_err)}")
+                    continue
+                except Exception as w_err:
+                    self.logger.critical(
+                        f"WhatsApp dispatch failed for PROSPECTID {prospect_id}: {str(w_err)}"
+                    )
+                    self.dedup.record_notification(
+                        prospect_id=prospect_id,
+                        notification_id=notification_id,
+                        tier=eligibility_dict["tier"],
+                        language=language,
+                        status="whatsapp_error",
+                        channel="WhatsApp",
+                        processing_status="Failed - WhatsApp Error",
+                        processing_remark=f"Failed due to Twilio/WhatsApp dispatch error: {str(w_err)}"
+                    )
+                    self.logger.error(f"PROSPECTID {prospect_id}: Failed - WhatsApp Error. Reason: WhatsApp dispatch failed.")
                     errors += 1
                     max_processed_id = max(max_processed_id, prospect_id)
                     # Update watermark immediately (Requirement 6: crash resilience)
@@ -278,7 +339,7 @@ class AgentScheduler:
                     "generated_at": datetime.now(timezone.utc).isoformat(),
                     "message_preview": self.generator.generate_preview(message_content),
                     "status": "sent",
-                    "contact_no": eligibility_dict.get("contact_no", "")
+                    "contact_no": contact_str
                 }
                 self._write_csv_row(csv_row)
 
@@ -289,7 +350,9 @@ class AgentScheduler:
                     tier=eligibility_dict["tier"],
                     language=language,
                     status="sent",
-                    channel="WhatsApp"
+                    channel="WhatsApp",
+                    processing_status="Sent",
+                    processing_remark="Notification sent successfully via WhatsApp."
                 )
 
                 sent += 1
@@ -305,13 +368,24 @@ class AgentScheduler:
                 except Exception as sync_err:
                     self.logger.error(f"Excel sync failed: {str(sync_err)}")
                     
-                self.logger.info(f"Notification generated: {notification_id} | Lang: {language}")
+                self.logger.info(f"PROSPECTID {prospect_id}: Sent. Reason: Notification generated and sent successfully.")
 
             except Exception as row_err:
                 self.logger.error(
                     f"Unexpected error processing PROSPECTID {prospect_id}. Traceback:\n"
                     f"{traceback.format_exc()}"
                 )
+                self.dedup.record_notification(
+                    prospect_id=prospect_id,
+                    notification_id="",
+                    tier=str(row.get("Approved_Flag", "N/A")),
+                    language="N/A",
+                    status="unexpected_error",
+                    channel="N/A",
+                    processing_status="Failed - Unexpected Error",
+                    processing_remark=f"Failed due to unexpected pipeline error: {str(row_err)}"
+                )
+                self.logger.error(f"PROSPECTID {prospect_id}: Failed - Unexpected Error. Reason: {str(row_err)}")
                 errors += 1
                 max_processed_id = max(max_processed_id, prospect_id)
                 # Update watermark immediately (Requirement 6: crash resilience)

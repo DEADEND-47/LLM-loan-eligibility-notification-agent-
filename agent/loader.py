@@ -185,16 +185,26 @@ class DataLoader:
                 "sent_at": "Notification_Sent_At",
                 "language": "Notification_Language",
                 "status": "Notification_Status",
-                "channel": "Notification_Channel"
+                "channel": "Notification_Channel",
+                "processing_status": "Processing_Status",
+                "processing_remark": "Processing_Remark"
             })
 
-            for col in ["Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status", "Notification_Channel"]:
+            cols_to_drop = [
+                "Notification_ID", "Notification_Sent_At", "Notification_Language",
+                "Notification_Status", "Notification_Channel", "Processing_Status", "Processing_Remark"
+            ]
+            for col in cols_to_drop:
                 if col in df.columns:
                     df = df.drop(columns=[col])
 
             merged_df = pd.merge(
                 df,
-                db_df[["prospect_id", "Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status", "Notification_Channel"]],
+                db_df[[
+                    "prospect_id", "Notification_ID", "Notification_Sent_At", 
+                    "Notification_Language", "Notification_Status", "Notification_Channel",
+                    "Processing_Status", "Processing_Remark"
+                ]],
                 left_on="PROSPECTID",
                 right_on="prospect_id",
                 how="left"
