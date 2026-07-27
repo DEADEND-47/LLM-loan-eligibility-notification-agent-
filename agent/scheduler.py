@@ -65,6 +65,7 @@ class AgentScheduler:
             db_path=self.db_path,
             cooldown_days=int(self.cooldown_config["days"])
         )
+        self.loader.recover_db_from_excel()
         self.explainer = ExplainabilityLayer()
         self.multilang = LanguageSelector(
             default_lang=self.notification_config["default_language"]
@@ -141,6 +142,9 @@ class AgentScheduler:
             return {"sent": 0, "skipped": 0, "errors": 0, "total_processed": 0, "max_prospect_id": 0}
 
         max_processed_id = 0
+        
+        # Get next sequence number for unique Notification IDs
+        next_seq = self.dedup.get_next_sequence_number()
 
         # Process row by row
         for idx, pandas_row in new_records_df.iterrows():
@@ -155,6 +159,15 @@ class AgentScheduler:
             self.logger.info(f"Processing PROSPECTID {prospect_id}")
 
             try:
+                # Requirement 3: Check database first. If already successfully notified, skip them.
+                if self.dedup.has_been_notified(prospect_id):
+                    self.logger.info(f"PROSPECTID {prospect_id} already notified successfully. Skipping.")
+                    skipped += 1
+                    max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
+                    continue
+
                 # Check eligibility
                 eligibility_dict = self.eligibility.check(row)
                 if eligibility_dict is None:
@@ -164,11 +177,14 @@ class AgentScheduler:
                         notification_id="",
                         tier=str(row.get("Approved_Flag", "P3")),
                         language="N/A",
-                        status="skipped_declined"
+                        status="skipped_declined",
+                        channel="N/A"
                     )
                     self.logger.warning(f"Skipped PROSPECTID {prospect_id} — declined (P3)")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
                     continue
 
                 # Check cooldown
@@ -178,18 +194,21 @@ class AgentScheduler:
                         notification_id="",
                         tier=eligibility_dict["tier"],
                         language="N/A",
-                        status="skipped_cooldown"
+                        status="skipped_cooldown",
+                        channel="N/A"
                     )
                     self.logger.warning(f"Skipped PROSPECTID {prospect_id} — in cooldown")
                     skipped += 1
                     max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
                     continue
 
                 # Language detection
                 language = self.multilang.detect_language(prospect_id, row)
 
-                # Build identifiers and format reasons
-                notification_id = self._build_notification_id(prospect_id)
+                # Build identifiers (using global sequence number) and format reasons
+                notification_id = self._build_notification_id(next_seq)
                 enriched_reason = self.explainer.enrich_reason(
                     reason_str=eligibility_dict["reason"],
                     credit_score=eligibility_dict["credit_score"],
@@ -214,10 +233,13 @@ class AgentScheduler:
                         notification_id=notification_id,
                         tier=eligibility_dict["tier"],
                         language=language,
-                        status="api_error"
+                        status="api_error",
+                        channel="WhatsApp"
                     )
                     errors += 1
                     max_processed_id = max(max_processed_id, prospect_id)
+                    # Update watermark immediately (Requirement 6: crash resilience)
+                    self.loader.update_watermark(prospect_id)
                     continue
 
                 # Log results to CSV audit
@@ -244,11 +266,16 @@ class AgentScheduler:
                     notification_id=notification_id,
                     tier=eligibility_dict["tier"],
                     language=language,
-                    status="sent"
+                    status="sent",
+                    channel="WhatsApp"
                 )
 
                 sent += 1
+                next_seq += 1  # Increment sequence number for next sent message
                 max_processed_id = max(max_processed_id, prospect_id)
+                
+                # Update watermark immediately (Requirement 6: crash resilience)
+                self.loader.update_watermark(prospect_id)
                 self.logger.info(f"Notification generated: {notification_id} | Lang: {language}")
 
             except Exception as row_err:
@@ -258,6 +285,8 @@ class AgentScheduler:
                 )
                 errors += 1
                 max_processed_id = max(max_processed_id, prospect_id)
+                # Update watermark immediately (Requirement 6: crash resilience)
+                self.loader.update_watermark(prospect_id)
                 continue
 
         # Step 5: Update watermark

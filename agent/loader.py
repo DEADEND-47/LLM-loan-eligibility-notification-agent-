@@ -103,8 +103,26 @@ class DataLoader:
         try:
             self._ensure_watermark_table(conn)
             cursor = conn.cursor()
+            
+            # Fetch last prospect ID from watermark
             cursor.execute("SELECT last_prospect_id FROM watermark WHERE id = 1")
             last_prospect_id = cursor.fetchone()[0]
+            
+            # If notifications table exists, check the maximum prospect_id recorded.
+            # If the database and Excel disagree, treat SQLite as the source of truth.
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='notifications'")
+            if cursor.fetchone():
+                cursor.execute("SELECT MAX(prospect_id) FROM notifications")
+                max_row = cursor.fetchone()
+                db_max_id = max_row[0] if max_row and max_row[0] is not None else 0
+                if db_max_id > last_prospect_id:
+                    self.logger.warning(
+                        f"SQLite notifications max prospect_id ({db_max_id}) is ahead of watermark ({last_prospect_id}). "
+                        f"Updating watermark to {db_max_id} as source of truth."
+                    )
+                    cursor.execute("UPDATE watermark SET last_prospect_id = ? WHERE id = 1", (db_max_id,))
+                    conn.commit()
+                    last_prospect_id = db_max_id
 
             filtered_df = df[df["PROSPECTID"] > last_prospect_id]
             count = len(filtered_df)
@@ -161,16 +179,17 @@ class DataLoader:
                 "notification_id": "Notification_ID",
                 "sent_at": "Notification_Sent_At",
                 "language": "Notification_Language",
-                "status": "Notification_Status"
+                "status": "Notification_Status",
+                "channel": "Notification_Channel"
             })
 
-            for col in ["Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status"]:
+            for col in ["Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status", "Notification_Channel"]:
                 if col in df.columns:
                     df = df.drop(columns=[col])
 
             merged_df = pd.merge(
                 df,
-                db_df[["prospect_id", "Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status"]],
+                db_df[["prospect_id", "Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status", "Notification_Channel"]],
                 left_on="PROSPECTID",
                 right_on="prospect_id",
                 how="left"

@@ -27,7 +27,7 @@ class DedupManager:
         return sqlite3.connect(self.db_path, check_same_thread=False)
 
     def _ensure_table(self) -> None:
-        """Ensure the notifications registry table exists in SQLite."""
+        """Ensure the notifications registry table exists in SQLite and has correct columns."""
         conn = self._get_connection()
         try:
             cursor = conn.cursor()
@@ -39,10 +39,19 @@ class DedupManager:
                     tier TEXT NOT NULL,
                     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     language TEXT NOT NULL,
-                    status TEXT NOT NULL
+                    status TEXT NOT NULL,
+                    channel TEXT NOT NULL DEFAULT 'WhatsApp'
                 )
                 """
             )
+            
+            # Check if channel column exists (migration support)
+            cursor.execute("PRAGMA table_info(notifications)")
+            columns = [col[1] for col in cursor.fetchall()]
+            if "channel" not in columns:
+                self.logger.info("Migrating database: adding 'channel' column to notifications table")
+                cursor.execute("ALTER TABLE notifications ADD COLUMN channel TEXT NOT NULL DEFAULT 'WhatsApp'")
+            
             conn.commit()
         finally:
             conn.close()
@@ -89,7 +98,15 @@ class DedupManager:
         finally:
             conn.close()
 
-    def record_notification(self, prospect_id: int, notification_id: str, tier: str, language: str, status: str) -> None:
+    def record_notification(
+        self,
+        prospect_id: int,
+        notification_id: str,
+        tier: str,
+        language: str,
+        status: str,
+        channel: str = "WhatsApp"
+    ) -> None:
         """Log a communication attempt (sent or skipped) to the SQLite registry database.
 
         Args:
@@ -98,6 +115,7 @@ class DedupManager:
             tier (str): Credit risk tier (P1, P2, P3).
             language (str): Target language of the message.
             status (str): Outcome status (sent, skipped_cooldown, skipped_declined).
+            channel (str): Dispatch channel used (e.g. WhatsApp, N/A).
         """
         conn = self._get_connection()
         try:
@@ -105,13 +123,13 @@ class DedupManager:
             sent_at_iso = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
             cursor.execute(
                 """
-                INSERT OR REPLACE INTO notifications (prospect_id, notification_id, tier, sent_at, language, status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO notifications (prospect_id, notification_id, tier, sent_at, language, status, channel)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (prospect_id, notification_id, tier, sent_at_iso, language, status)
+                (prospect_id, notification_id, tier, sent_at_iso, language, status, channel)
             )
             conn.commit()
-            self.logger.debug(f"Recorded {status} for PROSPECTID {prospect_id}")
+            self.logger.debug(f"Recorded {status} via {channel} for PROSPECTID {prospect_id}")
         except Exception as e:
             self.logger.error(f"Failed to record notification for PROSPECTID {prospect_id}: {str(e)}")
         finally:
@@ -153,5 +171,58 @@ class DedupManager:
                 "skipped_declined": 0,
                 "total_records": 0
             }
+        finally:
+            conn.close()
+
+    def has_been_notified(self, prospect_id: int) -> bool:
+        """Check if a customer has already been successfully notified (status == 'sent').
+
+        Args:
+            prospect_id (int): Customer prospect ID.
+
+        Returns:
+            bool: True if notified successfully, False otherwise.
+        """
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT COUNT(1) FROM notifications WHERE prospect_id = ? AND status = 'sent'",
+                (prospect_id,)
+            )
+            return cursor.fetchone()[0] > 0
+        except Exception as e:
+            self.logger.error(f"Error checking notification status for PROSPECTID {prospect_id}: {str(e)}")
+            return False
+        finally:
+            conn.close()
+
+    def get_next_sequence_number(self) -> int:
+        """Calculate the next sequence number starting from the maximum sequence value in the database.
+
+        Returns:
+            int: The next incremental sequence number.
+        """
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT notification_id FROM notifications")
+            rows = cursor.fetchall()
+            max_seq = 0
+            for row in rows:
+                notif_id = row[0]
+                if notif_id and notif_id.startswith("NOTIF-"):
+                    parts = notif_id.split("-")
+                    if len(parts) >= 3:
+                        try:
+                            seq = int(parts[-1])
+                            if seq > max_seq:
+                                max_seq = seq
+                        except ValueError:
+                            pass
+            return max_seq + 1
+        except Exception as e:
+            self.logger.error(f"Error calculating next sequence number from DB: {str(e)}")
+            return 1
         finally:
             conn.close()

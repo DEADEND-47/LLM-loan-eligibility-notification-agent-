@@ -68,3 +68,24 @@ def test_get_stats_after_records(dedup):
     assert stats["skipped_cooldown"] == 1
     assert stats["skipped_declined"] == 1
     assert stats["total_records"] == 4
+
+def test_has_been_notified(dedup):
+    """Verify that we can check if a prospect was already successfully notified."""
+    assert dedup.has_been_notified(5) is False
+    dedup.record_notification(5, "NOTIF-20260727-00005", "P1", "English", "sent", "WhatsApp")
+    assert dedup.has_been_notified(5) is True
+    
+    # Skipped records should not count as successfully notified
+    dedup.record_notification(6, "", "P3", "N/A", "skipped_declined", "N/A")
+    assert dedup.has_been_notified(6) is False
+
+def test_get_next_sequence_number(dedup):
+    """Verify sequence calculation auto-increments based on largest existing ID in database."""
+    assert dedup.get_next_sequence_number() == 1
+    
+    dedup.record_notification(1, "NOTIF-20260727-00045", "P1", "English", "sent")
+    assert dedup.get_next_sequence_number() == 46
+    
+    dedup.record_notification(2, "NOTIF-20260727-00002", "P2", "English", "sent")
+    # Still 46 since 45 is the maximum
+    assert dedup.get_next_sequence_number() == 46

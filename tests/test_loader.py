@@ -92,3 +92,36 @@ def test_update_watermark(temp_config):
     conn.close()
     
     assert val == 3
+
+def test_recover_db_from_excel(temp_config):
+    """Verify database recovery from Excel processed columns behaves correctly."""
+    loader = DataLoader(temp_config)
+    
+    # 1. Modify the mock excel file to simulate processed status columns
+    df = pd.read_excel(loader.dataset_path)
+    df["Notification_ID"] = ["NOTIF-20260727-00001", "NOTIF-20260727-00002", None]
+    df["Notification_Status"] = ["sent", "sent", None]
+    df["Notification_Language"] = ["English", "English", None]
+    df["Notification_Sent_At"] = ["2026-07-27T12:00:00", "2026-07-27T12:00:01", None]
+    df["Notification_Channel"] = ["WhatsApp", "WhatsApp", None]
+    df.to_excel(loader.dataset_path, index=False)
+    
+    # 2. Run the recovery method
+    loader.recover_db_from_excel()
+    
+    # 3. Verify SQLite has been populated with the records
+    conn = sqlite3.connect(loader.db_path)
+    cursor = conn.cursor()
+    cursor.execute("SELECT prospect_id, notification_id, status, channel FROM notifications ORDER BY prospect_id")
+    rows = cursor.fetchall()
+    
+    assert len(rows) == 2
+    assert rows[0] == (1, "NOTIF-20260727-00001", "sent", "WhatsApp")
+    assert rows[1] == (2, "NOTIF-20260727-00002", "sent", "WhatsApp")
+    
+    # Verify watermark table is synchronized to the max ID
+    cursor.execute("SELECT last_prospect_id FROM watermark WHERE id = 1")
+    watermark_val = cursor.fetchone()[0]
+    conn.close()
+    
+    assert watermark_val == 2
