@@ -1,0 +1,14 @@
+[2026-07-27 22:28:12] [INFO] [root] Logging initialized
+[2026-07-27 22:28:13] [INFO] [root] Starting Loan Eligibility Agent
+[2026-07-27 22:28:13] [INFO] [agent.config] All output directories verified
+[2026-07-27 22:28:13] [INFO] [agent.llm.factory] Successfully initialized LLM provider: GroqLLM
+[2026-07-27 22:28:13] [INFO] [agent.api] API initialized with scheduler instance
+[2026-07-27 22:28:13] [INFO] [agent.scheduler] Pipeline started — checking for new records
+[2026-07-27 22:28:13] [INFO] [agent.loader] Successfully loaded 3 rows from Excel dataset.
+[2026-07-27 22:28:13] [INFO] [agent.loader] No new records found. All records have been processed.
+[2026-07-27 22:28:13] [INFO] [agent.scheduler] No new records found. Next run in 1 hours.
+[2026-07-27 22:28:13] [INFO] [apscheduler.scheduler] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+[2026-07-27 22:28:13] [INFO] [apscheduler.scheduler] Added job "AgentScheduler.run_pipeline" to job store "default"
+[2026-07-27 22:28:13] [INFO] [apscheduler.scheduler] Scheduler started
+[2026-07-27 22:28:13] [INFO] [root] Scheduler started with interval of 1.0 hours
+[2026-07-27 22:28:24] [INFO] [httpx] HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"

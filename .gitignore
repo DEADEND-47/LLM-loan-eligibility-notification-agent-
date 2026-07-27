@@ -18,13 +18,6 @@ env/
 # Environment variables (NEVER commit real keys)
 .env
 
-# Database and outputs (runtime generated)
-db/
-output/
-logs/
-
-# Excel dataset (too large for git)
-Bank_Loan_DS_Project.xlsx
 
 # IDE
 .vscode/
