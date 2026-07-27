@@ -27,7 +27,8 @@ CSV_HEADERS = [
     "language",
     "generated_at",
     "message_preview",
-    "status"
+    "status",
+    "contact_no"
 ]
 
 class AgentScheduler:
@@ -223,7 +224,8 @@ class AgentScheduler:
                     "language": language,
                     "generated_at": datetime.now(timezone.utc).isoformat(),
                     "message_preview": self.generator.generate_preview(message_content),
-                    "status": "sent"
+                    "status": "sent",
+                    "contact_no": eligibility_dict.get("contact_no", "")
                 }
                 self._write_csv_row(csv_row)
 

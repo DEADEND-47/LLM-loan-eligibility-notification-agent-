@@ -68,7 +68,8 @@ class EligibilityChecker:
                 "reason": str(row["Reason_For_Approval"]),
                 "credit_score": credit_score,
                 "income_tl_ratio": income_tl_ratio,
-                "is_income_outlier": is_income_outlier
+                "is_income_outlier": is_income_outlier,
+                "contact_no": str(row.get("Contact_No", ""))
             }
         except (KeyError, ValueError, TypeError) as e:
             self.logger.error(
