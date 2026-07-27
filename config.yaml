@@ -12,6 +12,7 @@ cooldown:
 scheduler:
   interval_hours: 1
   timezone: "UTC"
+  max_sends_per_run: 3
 
 llm:
   provider: "groq"

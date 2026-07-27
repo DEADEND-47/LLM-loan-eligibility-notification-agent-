@@ -52,6 +52,7 @@ class AgentScheduler:
         self.llm_config = config["llm"]
         self.notification_config = config["notification"]
         self.output_config = config["output"]
+        self.max_sends_per_run = int(self.scheduler_config.get("max_sends_per_run", 999999))
 
         # Resolve paths
         self.csv_path = self.output_config["log_csv"]
@@ -143,6 +144,12 @@ class AgentScheduler:
 
         # Process row by row
         for idx, pandas_row in new_records_df.iterrows():
+            if sent >= self.max_sends_per_run:
+                self.logger.info(
+                    f"Reached maximum send limit of {self.max_sends_per_run} notifications. "
+                    f"Stopping pipeline execution for this run."
+                )
+                break
             row = pandas_row.to_dict()
             prospect_id = int(row["PROSPECTID"])
             self.logger.info(f"Processing PROSPECTID {prospect_id}")
