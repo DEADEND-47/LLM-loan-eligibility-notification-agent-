@@ -133,3 +133,55 @@ class DataLoader:
             self.logger.info(f"Watermark updated to PROSPECTID {max_id}")
         finally:
             conn.close()
+
+    def sync_db_to_excel(self) -> None:
+        """Read the SQLite database notifications and update the Excel file with status metadata."""
+        if not os.path.exists(self.dataset_path):
+            return
+
+        conn = self._get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='notifications'")
+            if not cursor.fetchone():
+                return
+
+            db_df = pd.read_sql_query("SELECT * FROM notifications", conn)
+            if db_df.empty:
+                return
+
+            sheet_name_str = self.sheet_name
+            if isinstance(self.sheet_name, int):
+                xl = pd.ExcelFile(self.dataset_path)
+                sheet_name_str = xl.sheet_names[self.sheet_name]
+
+            df = pd.read_excel(self.dataset_path, sheet_name=sheet_name_str)
+
+            db_df = db_df.rename(columns={
+                "notification_id": "Notification_ID",
+                "sent_at": "Notification_Sent_At",
+                "language": "Notification_Language",
+                "status": "Notification_Status"
+            })
+
+            for col in ["Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status"]:
+                if col in df.columns:
+                    df = df.drop(columns=[col])
+
+            merged_df = pd.merge(
+                df,
+                db_df[["prospect_id", "Notification_ID", "Notification_Sent_At", "Notification_Language", "Notification_Status"]],
+                left_on="PROSPECTID",
+                right_on="prospect_id",
+                how="left"
+            )
+
+            if "prospect_id" in merged_df.columns:
+                merged_df = merged_df.drop(columns=["prospect_id"])
+
+            merged_df.to_excel(self.dataset_path, sheet_name=sheet_name_str, index=False)
+            self.logger.info("Successfully synchronized SQLite notification records back to Excel dataset.")
+        except Exception as e:
+            self.logger.error(f"Failed to synchronize database records to Excel: {str(e)}")
+        finally:
+            conn.close()

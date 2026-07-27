@@ -264,6 +264,12 @@ class AgentScheduler:
         if max_processed_id > 0:
             self.loader.update_watermark(max_processed_id)
 
+        # Step 6: Synchronize database states back to Excel file
+        try:
+            self.loader.sync_db_to_excel()
+        except Exception as sync_err:
+            self.logger.error(f"Excel sync failed: {str(sync_err)}")
+
         self.logger.info(f"Pipeline complete — Sent: {sent}, Skipped: {skipped}, Errors: {errors}")
 
         return {
