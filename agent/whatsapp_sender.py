@@ -31,6 +31,11 @@ def send_whatsapp(message: str, to_number: Optional[str] = None) -> None:
         if not target_number.startswith("whatsapp:"):
             target_number = f"whatsapp:{target_number}"
 
+        # Truncate message to Twilio WhatsApp limit of 1600 characters
+        if len(message) > 1600:
+            message = message[:1597] + "..."
+            logger.info("Message body exceeded 1600 characters; truncated to fit Twilio limits.")
+
         client = Client(account_sid, auth_token)
         response = client.messages.create(
             from_=from_whatsapp,
