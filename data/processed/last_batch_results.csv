@@ -1,0 +1,4 @@
+Row,Credit_Score,Net_Monthly_Income,Predicted_Tier,Decision,Confidence_%,Recommended_Loan,Interest_Rate_%,Tenure_Years,Monthly_EMI,Reason
+1,780,90000,P1,Approved,99.7,1083900.0,8.5,5,22238,"No missed payments; No delinquency history; Stable income Rs.78,000/mo; Mature credit (150 months); No recent credit enquiries"
+2,660,25000,P3,Approved,100.0,173400.0,13.5,3,5884,No delinquency history
+3,600,12000,P4,Rejected,100.0,0.0,0.0,0,0,4 missed payment(s) on record; Delinquency history recorded; Limited credit history (10 months); High recent enquiry volume (6 in last 3 months)

@@ -1,0 +1,4 @@
+Credit_Score,NETMONTHLYINCOME,AGE,Total_TL,Tot_Active_TL,Tot_Missed_Pmnt,num_times_delinquent,num_times_30p_dpd,Age_Oldest_TL,enq_L3m,Time_With_Curr_Empr
+780.0,90000.0,40.0,8.0,3.0,0.0,0.0,0.0,150.0,0.0,120.0
+660.0,25000.0,30.0,4.0,2.0,1.0,0.0,0.0,50.0,1.0,30.0
+600.0,12000.0,24.0,2.0,1.0,4.0,3.0,2.0,10.0,6.0,6.0

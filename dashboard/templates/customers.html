@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set active = 'customers' %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+
+<section class="hero compact">
+  <h1>Eligible customers</h1>
+  <p>Model-recommended loans for approved applicants. Amounts vary per person by
+     income and risk tier — search a Customer ID, re-sort, or click any row for the
+     full profile and repayment plan.</p>
+</section>
+
+<form method="get" class="search">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search by Customer ID (e.g. 42962)">
+  <button class="btn" type="submit">Search</button>
+  {% if query %}<a class="btn ghost" href="{{ url_for('customers') }}">Clear</a>{% endif %}
+</form>
+
+<div class="sort-bar">
+  <span class="muted">Sort:</span>
+  <a class="chip {{ 'on' if sort == 'id' }}"          href="{{ url_for('customers', sort='id') }}">Customer ID</a>
+  <a class="chip {{ 'on' if sort == 'amount_desc' }}" href="{{ url_for('customers', sort='amount_desc') }}">Loan: high → low</a>
+  <a class="chip {{ 'on' if sort == 'amount_asc' }}"  href="{{ url_for('customers', sort='amount_asc') }}">Loan: low → high</a>
+</div>
+
+{% if query and not rows %}
+  <p class="muted">No eligible customer found with ID “{{ query }}”.</p>
+{% endif %}
+
+<div class="table-wrap">
+<table class="data">
+  <thead>
+    <tr>
+      <th>Customer ID</th><th>Tier</th><th>Recommended loan</th>
+      <th>Rate</th><th>Tenure</th><th>Monthly EMI</th><th>Reason</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>#{{ r.CustomerID }}</td>
+      <td><span class="pill tier-{{ r.RiskTierID }}">{{ r.RiskTierID }}</span></td>
+      <td class="num">{{ r.Recommended_Loan_Amount | inr }}</td>
+      <td class="num">{{ r.Interest_Rate_Pct }}%</td>
+      <td class="num">{{ r.Tenure_Years }} yr</td>
+      <td class="num">{{ r.Monthly_EMI | inr }}</td>
+      <td class="reason-cell">{{ r.Reason_For_Approval }}</td>
+      <td><a class="btn ghost sm" href="{{ url_for('customer_detail', customer_id=r.CustomerID) }}">View →</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if not query %}<p class="muted">Showing 100 of 45,453 eligible customers. Recommended loan sizes range from about Rs.1.4L to Rs.25L depending on income and risk tier.</p>{% endif %}
+
+{% endblock %}

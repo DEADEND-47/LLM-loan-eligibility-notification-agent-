@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% set active = 'model' %}
+{% block title %}Model{% endblock %}
+{% block content %}
+
+<section class="hero compact">
+  <h1>Model performance</h1>
+  <p>Both models were selected by comparing several algorithms on a held-out validation
+     set, then confirmed on an untouched test set — the metrics below are honest
+     out-of-sample results, not training scores.</p>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Classifier comparison <span class="muted">(risk tier)</span></h2>
+    <table class="data">
+      <thead><tr><th>Algorithm</th><th>Val. accuracy</th><th>Val. F1 (macro)</th></tr></thead>
+      <tbody>
+        {% for r in report.classifier_comparison %}
+        <tr class="{{ 'best' if loop.first }}">
+          <td>{{ r.Model }}{% if loop.first %} <span class="tag">selected</span>{% endif %}</td>
+          <td class="num">{{ "%.4f"|format(r.Val_Accuracy) }}</td>
+          <td class="num">{{ "%.4f"|format(r.Val_F1_Macro) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Regressor comparison <span class="muted">(loan amount)</span></h2>
+    <table class="data">
+      <thead><tr><th>Algorithm</th><th>Val. R²</th><th>Val. MAE</th></tr></thead>
+      <tbody>
+        {% for r in report.regressor_comparison %}
+        <tr class="{{ 'best' if loop.first }}">
+          <td>{{ r.Model }}{% if loop.first %} <span class="tag">selected</span>{% endif %}</td>
+          <td class="num">{{ "%.4f"|format(r.Val_R2) }}</td>
+          <td class="num">{{ r.Val_MAE | inr }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Top feature importances</h2>
+    {% set maxi = report.feature_importance[0].Importance_Pct %}
+    {% for f in report.feature_importance %}
+    <div class="bar-row">
+      <span class="bar-key wide">{{ f.Feature }}</span>
+      <div class="bar-track">
+        <div class="bar-fill accent" style="width: {{ (f.Importance_Pct / maxi * 100) }}%"></div>
+      </div>
+      <span class="bar-val">{{ "%.2f"|format(f.Importance_Pct) }}%</span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="panel">
+    <h2>Summary</h2>
+    <table class="mini">
+      {% for r in report.performance %}
+      <tr><td>{{ r.Metric }}</td><td><b>{{ r.Value }}</b></td></tr>
+      {% endfor %}
+    </table>
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Evaluation charts</h2>
+  <div class="figure-grid">
+    <figure><img src="{{ url_for('figure', name='confusion_matrix.png') }}" alt="Confusion matrix"><figcaption>Confusion matrix (test set)</figcaption></figure>
+    <figure><img src="{{ url_for('figure', name='classifier_comparison.png') }}" alt="Classifier comparison"><figcaption>Classifier accuracy comparison</figcaption></figure>
+    <figure><img src="{{ url_for('figure', name='feature_importance.png') }}" alt="Feature importance"><figcaption>Feature importances</figcaption></figure>
+    <figure><img src="{{ url_for('figure', name='loan_amount_regression.png') }}" alt="Regression fit"><figcaption>Loan-amount predicted vs. target</figcaption></figure>
+  </div>
+</section>
+
+{% endblock %}

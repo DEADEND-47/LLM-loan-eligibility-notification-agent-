@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FinRisk{% endblock %} · Credit Risk Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='finrisk_icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v={{ asset_version }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="{{ url_for('static', filename='finrisk_icon.svg') }}" alt="FinRisk logo">
+      <span>FinRisk <small>Credit Risk &amp; Loan Recommendation</small></span>
+    </div>
+    <nav>
+      <a href="{{ url_for('index') }}" class="{{ 'active' if active=='home' }}">Overview</a>
+      <a href="{{ url_for('predict') }}" class="{{ 'active' if active=='predict' }}">Live Prediction</a>
+      <a href="{{ url_for('batch') }}" class="{{ 'active' if active=='batch' }}">Batch Scoring</a>
+      <a href="{{ url_for('insights') }}" class="{{ 'active' if active=='insights' }}">Insights</a>
+      <a href="{{ url_for('customers') }}" class="{{ 'active' if active=='customers' }}">Customers</a>
+      <a href="{{ url_for('notifications') }}" class="{{ 'active' if active=='notifications' }}">Notifications</a>
+      <a href="{{ url_for('model') }}" class="{{ 'active' if active=='model' }}">Model</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <p>Machine-learning credit risk assessment &middot; Gradient Boosting classifier + Random Forest regressor &middot; built with scikit-learn &amp; Flask</p>
+  </footer>
+</body>
+</html>

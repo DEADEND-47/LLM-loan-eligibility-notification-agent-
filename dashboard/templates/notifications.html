@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% set active = 'notifications' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+
+<section class="hero compact">
+  <h1>Loan Eligibility Notifications</h1>
+  <p>Real-time audit log of customer pre-approval messages. Shows status (sent, skipped, cooldown, failed) and language details pulled directly from ALENA's registry.</p>
+</section>
+
+{% if not rows %}
+  <p class="muted">No notifications recorded in the database yet.</p>
+{% else %}
+<div class="table-wrap">
+<table class="data">
+  <thead>
+    <tr>
+      <th>Prospect ID</th>
+      <th>Customer Name</th>
+      <th>Notification ID</th>
+      <th>Tier</th>
+      <th>Loan Amount</th>
+      <th>Status</th>
+      <th>Language</th>
+      <th>Channel</th>
+      <th>Remark / Reason</th>
+      <th>Timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>#{{ r.prospect_id }}</td>
+      <td>{{ r.name }}</td>
+      <td><code>{{ r.notification_id }}</code></td>
+      <td><span class="pill tier-{{ r.tier }}">{{ r.tier }}</span></td>
+      <td class="num">
+        {% if r.loan_amount > 0 %}
+          {{ r.loan_amount | inr }}
+        {% else %}
+          <span class="muted">—</span>
+        {% endif %}
+      </td>
+      <td>
+        <span class="pill status-{{ r.status_raw }}">
+          {{ r.status }}
+        </span>
+      </td>
+      <td>{{ r.language }}</td>
+      <td>{{ r.channel }}</td>
+      <td class="reason-cell" title="{{ r.remark }}">{{ r.remark }}</td>
+      <td class="muted"><small>{{ r.timestamp }}</small></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+{% endblock %}

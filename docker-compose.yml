@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: finrisk_alena_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db:/app/db
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./Bank_Loan_DS_Project.xlsx:/app/Bank_Loan_DS_Project.xlsx
+      - ./.env:/app/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      com.finrisk-alena.description: "FinRisk-ALENA API Backend & Notification Scheduler"
+      com.finrisk-alena.version: "1.0.0"
+
+  dashboard:
+    build: .
+    container_name: finrisk_alena_dashboard
+    restart: unless-stopped
+    command: ["python", "dashboard/app.py"]
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./db:/app/db
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./Bank_Loan_DS_Project.xlsx:/app/Bank_Loan_DS_Project.xlsx
+      - ./.env:/app/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - PORT=5000
+      - FLASK_DEBUG=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      com.finrisk-alena.description: "FinRisk-ALENA Flask Management Dashboard"
+      com.finrisk-alena.version: "1.0.0"

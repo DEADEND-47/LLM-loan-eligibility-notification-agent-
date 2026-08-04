@@ -1,0 +1,13 @@
+Metric,Value
+Task,Risk tier classification (Approved_Flag)
+Best Classifier,Gradient Boosting
+Train Size,35935
+Validation Size,7700
+Test Size,7701
+Total Features,68
+Target Classes,"P1, P2, P3, P4"
+Test Accuracy,99.49%
+Task ,Loan amount regression
+Best Regressor,Random Forest Regressor
+Regression Test R2,0.9553
+Regression Test MAE,"Rs.4,206"

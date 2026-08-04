@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set active = 'batch' %}
+{% block title %}Batch Scoring{% endblock %}
+{% block content %}
+
+<section class="hero compact">
+  <h1>Batch scoring</h1>
+  <p>Score many applicants at once. Upload a CSV or Excel file and every row is run
+     through the model — eligibility, risk tier, recommended loan, EMI and reason —
+     then download the results.</p>
+</section>
+
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+{% if warning %}<div class="alert">⚠ {{ warning }}</div>{% endif %}
+
+<div class="two-col wide-left">
+  <section class="panel">
+    <h2>1. Upload applicants</h2>
+    <p class="muted">Your file should have these columns (extra columns are ignored;
+       missing ones fall back to the dataset median):</p>
+    <div class="code-cols">
+      {% for c in cols %}<span class="code-chip">{{ c }}</span>{% endfor %}
+    </div>
+    <a class="btn ghost sm" href="{{ url_for('batch_template') }}" style="margin:12px 0; display:inline-block">⬇ Download blank template (CSV)</a>
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+      <input type="file" name="file" accept=".csv,.xlsx,.xls" required>
+      <button type="submit" class="btn primary full">Score all applicants</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    {% if summary %}
+      <h2>2. Results</h2>
+      <div class="stat-grid" style="margin-bottom:16px">
+        <div class="stat-card"><div class="stat-value">{{ "{:,}".format(summary.total) }}</div><div class="stat-label">Applicants scored</div></div>
+        <div class="stat-card ok"><div class="stat-value">{{ "{:,}".format(summary.approved) }}</div><div class="stat-label">Approved</div></div>
+        <div class="stat-card bad"><div class="stat-value">{{ "{:,}".format(summary.rejected) }}</div><div class="stat-label">Rejected</div></div>
+        <div class="stat-card"><div class="stat-value" title="{{ summary.total_book | inr }}">{{ summary.total_book | inr_compact }}</div><div class="stat-label">Total loan book</div></div>
+      </div>
+      <a class="btn primary" href="{{ url_for('batch_download') }}">⬇ Download full results (CSV)</a>
+    {% else %}
+      <div class="placeholder">
+        <p><img class="placeholder-logo" src="{{ url_for('static', filename='finrisk_icon.svg') }}" alt=""></p>
+        <p>Upload a file to see every applicant scored here.</p>
+        <p class="muted">No file handy? Download the template, keep the example row, and upload it back to try it.</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+
+{% if results %}
+<section class="panel">
+  <h2>Scored applicants <span class="muted">(showing first {{ results|length }})</span></h2>
+  <div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr><th>Row</th><th>Credit Score</th><th>Income</th><th>Tier</th><th>Decision</th>
+          <th>Confidence</th><th>Recommended Loan</th><th>EMI</th><th>Reason</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td>{{ r.Row }}</td>
+        <td class="num">{{ r.Credit_Score }}</td>
+        <td class="num">{{ r.Net_Monthly_Income | inr }}</td>
+        <td><span class="pill tier-{{ r.Predicted_Tier }}">{{ r.Predicted_Tier }}</span></td>
+        <td class="{{ 'approved-cell' if r.Decision == 'Approved' else 'rejected-cell' }}">{{ r.Decision }}</td>
+        <td class="num">{{ r['Confidence_%'] }}%</td>
+        <td class="num">{{ r.Recommended_Loan | inr }}</td>
+        <td class="num">{{ r.Monthly_EMI | inr }}</td>
+        <td class="reason-cell">{{ r.Reason }}</td>
+        <td><a class="btn ghost sm" href="{{ url_for('batch_applicant', row=r.Row) }}">View →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+# Render blueprint for the FinRisk dashboard.
+# Models + processed data are committed in the repo, so the build just installs deps
+# and gunicorn serves the Flask app. Pinned library versions (requirements.txt) match
+# the versions the models were pickled with, so they load correctly.
+services:
+  - type: web
+    name: finrisk
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn --chdir dashboard app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 180"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: FLASK_DEBUG
+        value: "0"

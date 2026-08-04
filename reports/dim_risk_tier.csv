@@ -1,0 +1,5 @@
+RiskTierID,Risk_Category,Eligibility_Status,Max_Loan_Amount,Interest_Rate_Pct,Tenure_Years,Repayment_Method,Income_Multiplier,Risk_Score_Range
+P1,Best Risk,Approved,2500000,8.5,5,EMI Fixed Monthly,5.0,750+
+P2,Good Risk,Approved,1500000,10.5,4,EMI Fixed Monthly,3.5,700-749
+P3,Moderate Risk,Conditional,750000,13.5,3,EMI Step-Up,2.0,650-699
+P4,High Risk,Rejected,200000,18.0,2,Secured/Collateral,0.5,<650

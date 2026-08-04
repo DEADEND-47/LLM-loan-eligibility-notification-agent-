@@ -1,0 +1,19 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FinRisk icon">
+  <defs>
+    <linearGradient id="riskgrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"  stop-color="#1b7f4b"/>
+      <stop offset="34%" stop-color="#2f80c9"/>
+      <stop offset="67%" stop-color="#e8a33d"/>
+      <stop offset="100%" stop-color="#c0392b"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="44" fill="#12294d"/>
+<path d="M 46.31 135.00 A 62.00 62.00 0 1 1 153.69 135.00" fill="none" stroke="#e8ecf2" stroke-width="27" stroke-linecap="round"/>
+<path d="M 46.31 135.00 A 62.00 62.00 0 0 1 46.63 72.44" fill="none" stroke="#1b7f4b" stroke-width="21" stroke-linecap="round"/>
+<path d="M 45.98 73.56 A 62.00 62.00 0 0 1 100.65 42.00" fill="none" stroke="#2f80c9" stroke-width="21" stroke-linecap="round"/>
+<path d="M 99.35 42.00 A 62.00 62.00 0 0 1 154.02 73.56" fill="none" stroke="#e8a33d" stroke-width="21" stroke-linecap="round"/>
+<path d="M 153.37 72.44 A 62.00 62.00 0 0 1 153.69 135.00" fill="none" stroke="#c0392b" stroke-width="21" stroke-linecap="round"/>
+<line x1="108.99" y1="108.19" x2="64.04" y2="87.23" stroke="#12294d" stroke-width="8.8" stroke-linecap="round"/>
+<circle cx="100" cy="104" r="10.5" fill="#12294d"/>
+<circle cx="100" cy="104" r="4.6" fill="#ffffff"/>
+</svg>

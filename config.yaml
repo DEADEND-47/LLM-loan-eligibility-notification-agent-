@@ -1,0 +1,39 @@
+dataset:
+  source: "finrisk_pipeline"  # "finrisk_pipeline" | "excel"
+  excel_path: "Bank_Loan_DS_Project.xlsx"
+  excel_sheet_name: 0
+  csv_path: "data/processed/featured_dataset.csv"
+  # Keep legacy paths for compatibility
+  path: "Bank_Loan_DS_Project.xlsx"
+  sheet_name: 0
+
+eligibility:
+  approved_tiers: ["P1", "P2"]
+  declined_tier: "P3"
+
+cooldown:
+  days: 7
+
+scheduler:
+  interval_hours: 1
+  timezone: "UTC"
+  max_sends_per_run: 6
+
+llm:
+  provider: "groq"
+  gemini_model: "gemini-1.5-flash"
+  groq_model: "llama-3.1-8b-instant"
+  ollama_base_url: "http://localhost:11434"
+  ollama_model: "llama3.2"
+  max_tokens: 1000
+  api_key_env: "GROQ_API_KEY"
+
+notification:
+  id_format: "NOTIF-{date}-{prospect_id:05d}"
+  offer_validity_days: 30
+  default_language: "English"
+  content_sid: "HXb5b62575e6e4ff6129ad7c8efe1f983e"
+
+output:
+  log_csv: "output/notifications_log.csv"
+  sqlite_db: "db/notifications.db"

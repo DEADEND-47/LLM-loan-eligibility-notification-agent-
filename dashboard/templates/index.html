@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% set active = 'home' %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <h1>Credit Risk &amp; Smart Loan Recommendation</h1>
+  <p>Every applicant is scored by a trained machine-learning model into a risk tier
+     (P1–P4), then matched to an eligible loan amount, rate, tenure and a year-by-year
+     repayment plan.</p>
+</section>
+
+<section class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ "{:,}".format(stats.total_customers) }}</div>
+    <div class="stat-label">Applicants scored</div>
+  </div>
+  <div class="stat-card ok">
+    <div class="stat-value">{{ "{:,}".format(stats.eligible_customers) }}</div>
+    <div class="stat-label">Eligible for a loan</div>
+  </div>
+  <div class="stat-card bad">
+    <div class="stat-value">{{ "{:,}".format(stats.rejected_customers) }}</div>
+    <div class="stat-label">Rejected (high risk)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" title="{{ stats.total_loan_book | inr }}">{{ stats.total_loan_book | inr_compact }}</div>
+    <div class="stat-label">Total recommended loan book</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" title="{{ stats.avg_loan | inr }}">{{ stats.avg_loan | inr_compact }}</div>
+    <div class="stat-label">Average loan size</div>
+  </div>
+  <div class="stat-card accent">
+    <div class="stat-value">{{ stats.test_accuracy }}</div>
+    <div class="stat-label">{{ stats.best_classifier }} test accuracy</div>
+  </div>
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Risk tier distribution</h2>
+    {% set total = stats.total_customers %}
+    {% for tier, count in stats.tier_counts.items() %}
+      <div class="bar-row">
+        <span class="bar-key tier-{{ tier }}">{{ tier }}</span>
+        <div class="bar-track">
+          <div class="bar-fill tier-{{ tier }}" style="width: {{ (count / total * 100) }}%"></div>
+        </div>
+        <span class="bar-val">{{ "{:,}".format(count) }}</span>
+      </div>
+    {% endfor %}
+    <p class="muted">P1–P3 are approved (best → moderate risk); P4 is rejected.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Loan policy by tier</h2>
+    <table class="mini">
+      <thead>
+        <tr><th>Tier</th><th>Status</th><th>Max loan</th><th>Rate</th><th>Tenure</th></tr>
+      </thead>
+      <tbody>
+        {% for r in tier_rules %}
+        <tr>
+          <td><span class="pill tier-{{ r.RiskTierID }}">{{ r.RiskTierID }}</span></td>
+          <td>{{ r.Eligibility_Status }}</td>
+          <td>{{ r.Max_Loan_Amount | inr }}</td>
+          <td>{{ r.Interest_Rate_Pct }}%</td>
+          <td>{{ r.Tenure_Years }} yr</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Recommended loan-amount spread <span class="muted">(across all {{ "{:,}".format(stats.eligible_customers) }} eligible customers)</span></h2>
+  {% set maxband = stats.loan_distribution | map(attribute=1) | max %}
+  {% for label, count in stats.loan_distribution %}
+    <div class="bar-row">
+      <span class="bar-key wide">Rs.{{ label }}</span>
+      <div class="bar-track">
+        <div class="bar-fill accent" style="width: {{ (count / maxband * 100) }}%"></div>
+      </div>
+      <span class="bar-val">{{ "{:,}".format(count) }}</span>
+    </div>
+  {% endfor %}
+  <p class="muted">The model does not give everyone the same amount — the median loan is
+     {{ stats.median_loan | inr_compact }}, and most customers fall in the Rs.3L–Rs.9L range.
+     Only high-income, low-risk applicants reach the tier caps.</p>
+</section>
+
+<section class="panel">
+  <h2>Exploratory data analysis</h2>
+  <div class="figure-grid">
+    <figure><img src="{{ url_for('figure', name='target_distribution.png') }}" alt="Target distribution"><figcaption>Risk tier class balance</figcaption></figure>
+    <figure><img src="{{ url_for('figure', name='correlation_heatmap.png') }}" alt="Correlation heatmap"><figcaption>Feature correlation heatmap</figcaption></figure>
+    <figure><img src="{{ url_for('figure', name='bivariate_boxplots.png') }}" alt="Bivariate boxplots"><figcaption>Key features vs. risk tier</figcaption></figure>
+  </div>
+</section>
+
+<section class="cta">
+  <a class="btn primary" href="{{ url_for('predict') }}">Score a new applicant →</a>
+  <a class="btn" href="{{ url_for('customers') }}">Browse eligible customers</a>
+</section>
+
+{% endblock %}

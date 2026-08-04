@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% set active = 'customers' %}
+{% block title %}Customer #{{ data.customer_id }}{% endblock %}
+{% block content %}
+
+<a class="back" href="{{ url_for('customers') }}">← Back to customers</a>
+
+<section class="hero compact">
+  <h1>Customer #{{ data.customer_id }}</h1>
+  {% set app = data.application %}
+  <p>
+    Historical tier <span class="pill tier-{{ app.Approved_Flag }}">{{ app.Approved_Flag }}</span> ·
+    Credit score <b>{{ app.Credit_Score }}</b> ({{ app.Credit_Score_Band }}) ·
+    Net monthly income <b>{{ app.NETMONTHLYINCOME | inr }}</b>
+  </p>
+</section>
+
+{% if data.eligible and data.loan %}
+  {% set loan = data.loan %}
+  <div class="two-col">
+    <section class="panel">
+      <h2>Loan recommendation</h2>
+      <div class="loan-amt">
+        <span class="muted">Recommended loan</span>
+        <div class="big">{{ loan.Recommended_Loan_Amount | inr }}</div>
+      </div>
+      <table class="mini">
+        <tr><td>Risk tier</td><td><span class="pill tier-{{ loan.RiskTierID }}">{{ loan.RiskTierID }}</span></td></tr>
+        <tr><td>Interest rate</td><td>{{ loan.Interest_Rate_Pct }}% p.a.</td></tr>
+        <tr><td>Tenure</td><td>{{ loan.Tenure_Years }} years</td></tr>
+        <tr><td>Repayment method</td><td>{{ loan.Repayment_Method }}</td></tr>
+        <tr><td>Monthly EMI</td><td>{{ loan.Monthly_EMI | inr }}</td></tr>
+        <tr><td>EMI as share of income</td>
+            <td>{{ loan.EMI_to_Income }}% <span class="zone-tag {{ loan.FOIR_Zone_Cls }}">{{ loan.FOIR_Zone }}</span></td></tr>
+        <tr><td>Total interest payable</td><td>{{ loan.Total_Interest_Payable | inr }}</td></tr>
+        <tr><td>Total amount payable</td><td>{{ loan.Total_Amount_Payable | inr }}</td></tr>
+        <tr><td>Credit health score</td><td>{{ loan.Credit_Health_Score }}/100</td></tr>
+      </table>
+      <p class="affordability {{ 'ok' if loan.EMI_to_Income <= 30 else 'warn' }}">
+        {% if loan.EMI_to_Income <= 30 %}
+          ✓ Ideal zone — the {{ loan.Monthly_EMI | inr }} EMI is {{ loan.EMI_to_Income }}% of the
+          {{ app.NETMONTHLYINCOME | inr }} monthly income (within the 30% safe zone), so basic needs
+          and monthly savings stay unaffected.
+        {% else %}
+          ⚠ The {{ loan.Monthly_EMI | inr }} EMI is {{ loan.EMI_to_Income }}% of income — above the
+          30% ideal zone.
+        {% endif %}
+      </p>
+      <p class="reason"><span class="muted">Reason for approval:</span> {{ loan.Reason_For_Approval }}</p>
+    </section>
+
+    <section class="panel">
+      <h2>Debt payoff simulator</h2>
+      <p class="muted" style="margin-top:-4px">Drag the yearly payment to see how many years it
+         takes to clear the debt and what's left each year. Paying less each year means more
+         years — and more total interest. The scheduled EMI clears it in {{ loan.Tenure_Years }} years.</p>
+      <div id="payoff"
+           data-principal="{{ loan.Recommended_Loan_Amount }}"
+           data-rate="{{ loan.Interest_Rate_Pct }}"
+           data-income="{{ app.NETMONTHLYINCOME }}"
+           data-foir="{{ loan.FOIR_Limit }}"
+           data-emi="{{ loan.Monthly_EMI }}"
+           data-tenure="{{ loan.Tenure_Years }}">
+        <div class="payoff-control">
+          <label>
+            <span>Yearly payment: <b id="pay-label"></b> <span class="muted" id="pay-emi"></span></span>
+            <input type="range" id="pay-slider">
+          </label>
+        </div>
+        <div id="payoff-summary" class="payoff-summary"></div>
+        <div id="payoff-years" class="schedule"></div>
+        <div class="legend-key">
+          <span><i class="swatch principal"></i> Principal</span>
+          <span><i class="swatch interest"></i> Interest</span>
+        </div>
+      </div>
+      <script src="{{ url_for('static', filename='payoff.js') }}?v={{ asset_version }}"></script>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Scheduled repayment <span class="muted">(paying the full EMI on time — clears in {{ loan.Tenure_Years }} years)</span></h2>
+    <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr><th>Year</th><th>EMI / month</th><th>Principal paid</th><th>Interest paid</th>
+            <th>Total paid</th><th>Outstanding balance</th></tr>
+      </thead>
+      <tbody>
+        {% for row in data.schedule %}
+        <tr>
+          <td>{{ row.Year }}</td>
+          <td class="num">{{ row.EMI_Per_Month | inr }}</td>
+          <td class="num">{{ row.Principal_Paid | inr }}</td>
+          <td class="num">{{ row.Interest_Paid | inr }}</td>
+          <td class="num">{{ row.Total_Paid_Year | inr }}</td>
+          <td class="num">{{ row.Outstanding_Balance | inr }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </section>
+{% else %}
+  <section class="panel">
+    <div class="verdict bad">
+      <div class="verdict-tier">
+        <span class="pill tier-{{ app.Approved_Flag }} lg">{{ app.Approved_Flag }}</span>
+        <div><strong>Not eligible</strong><div class="muted">Declined under current policy (high risk tier or income too low for a viable loan)</div></div>
+      </div>
+      <div class="verdict-badge">NOT ELIGIBLE</div>
+    </div>
+  </section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% set active = 'batch' %}
+{% block title %}Applicant #{{ row }}{% endblock %}
+{% block content %}
+
+<a class="back" href="{{ url_for('batch') }}">← Back to batch results</a>
+
+<section class="hero compact">
+  <h1>Batch applicant #{{ row }}</h1>
+  <p>Full decision, recommended loan and repayment for this uploaded applicant.</p>
+</section>
+
+<div class="two-col wide-left">
+  <section class="panel">
+    <h2>Applicant profile</h2>
+    <table class="mini">
+      {% for name, label, mn, mx, default in fields %}
+      <tr><td>{{ label }}</td><td>{{ inputs[name] | inr if name == 'NETMONTHLYINCOME' else inputs[name] | round(0) | int }}</td></tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <section class="panel result-panel">
+    <div class="verdict {{ 'ok' if result.eligible else 'bad' }}">
+      <div class="verdict-tier">
+        <span class="pill tier-{{ result.tier }} lg">{{ result.tier }}</span>
+        <div>
+          <strong>{{ result.tier_label }}</strong>
+          <div class="muted">{{ result.eligibility_status }} · {{ result.confidence }}% model confidence</div>
+        </div>
+      </div>
+      <div class="verdict-badge">{{ 'ELIGIBLE' if result.eligible else 'NOT ELIGIBLE' }}</div>
+    </div>
+
+    <div class="metric-row">
+      <div><span class="muted">Credit Health Score</span><b>{{ result.credit_health_score }}/100</b></div>
+      <div><span class="muted">Income per active loan/card</span><b>{{ result.income_tl_ratio | inr }}</b></div>
+    </div>
+
+    <p class="reason"><span class="muted">Reason:</span> {{ result.reason }}</p>
+
+    {% if result.eligible %}
+    <div class="loan-summary">
+      <div class="loan-amt">
+        <span class="muted">Recommended loan</span>
+        <div class="big">{{ result.loan_amount | inr }}</div>
+      </div>
+      <table class="mini">
+        <tr><td>Interest rate</td><td>{{ result.interest_rate }}% p.a.</td></tr>
+        <tr><td>Tenure</td><td>{{ result.tenure_years }} years</td></tr>
+        <tr><td>Repayment method</td><td>{{ result.repayment_method }}</td></tr>
+        <tr><td>Monthly EMI</td><td>{{ result.monthly_emi | inr }}</td></tr>
+        <tr><td>EMI as share of income</td>
+            <td>{{ result.emi_to_income }}% <span class="zone-tag {{ result.foir_zone_cls }}">{{ result.foir_zone }}</span></td></tr>
+        <tr><td>Total interest payable</td><td>{{ result.total_interest | inr }}</td></tr>
+        <tr><td>Total amount payable</td><td>{{ result.total_payable | inr }}</td></tr>
+      </table>
+      <p class="affordability {{ 'ok' if result.emi_to_income <= 30 else 'warn' }}">
+        {% if result.emi_to_income <= 30 %}
+          ✓ Ideal zone — the {{ result.monthly_emi | inr }} EMI takes {{ result.emi_to_income }}%
+          of the {{ result.net_income | inr }} monthly income (within the 30% safe zone), so basic
+          needs and monthly savings stay unaffected.
+        {% else %}
+          ⚠ The {{ result.monthly_emi | inr }} EMI is {{ result.emi_to_income }}% of income — above the 30% ideal zone.
+        {% endif %}
+      </p>
+    </div>
+
+    <h3>Debt payoff simulator</h3>
+    <p class="muted" style="margin-top:-4px">Drag the yearly payment to see how many years it takes to
+       clear the debt and what's left each year. The scheduled EMI clears it in {{ result.tenure_years }} years.</p>
+    <div id="payoff"
+         data-principal="{{ result.loan_amount }}"
+         data-rate="{{ result.interest_rate }}"
+         data-income="{{ result.net_income }}"
+         data-foir="{{ result.foir_limit }}"
+         data-emi="{{ result.monthly_emi }}"
+         data-tenure="{{ result.tenure_years }}">
+      <div class="payoff-control">
+        <label>
+          <span>Yearly payment: <b id="pay-label"></b> <span class="muted" id="pay-emi"></span></span>
+          <input type="range" id="pay-slider">
+        </label>
+      </div>
+      <div id="payoff-summary" class="payoff-summary"></div>
+      <div id="payoff-years" class="schedule"></div>
+      <div class="legend-key">
+        <span><i class="swatch principal"></i> Principal</span>
+        <span><i class="swatch interest"></i> Interest</span>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='payoff.js') }}?v={{ asset_version }}"></script>
+    {% endif %}
+  </section>
+</div>
+
+{% endblock %}

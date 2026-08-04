@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% set active = 'insights' %}
+{% block title %}Insights{% endblock %}
+{% block content %}
+
+<section class="hero compact">
+  <h1>Portfolio insights</h1>
+  <p>Examine how approvals and risk exposure break down across the whole applicant
+     base — by credit score, income, age, and risk tier.</p>
+</section>
+
+<section class="panel">
+  <h2>Decision curve <span class="muted">— approval rate by credit score</span></h2>
+  <p class="muted">This is the cutoff in action: below ~650 almost nobody is approved,
+     above ~660 almost everybody is. The 650–659 band is the transition zone.</p>
+  {% for band, rate, count in data.threshold_curve %}
+    <div class="bar-row">
+      <span class="bar-key" style="width:70px">{{ band }}</span>
+      <div class="bar-track">
+        <div class="bar-fill {{ 'tier-P1' if rate >= 50 else 'tier-P4' }}" style="width: {{ rate }}%"></div>
+      </div>
+      <span class="bar-val">{{ rate }}%</span>
+      <span class="bar-val muted" style="width:80px">n={{ "{:,}".format(count) }}</span>
+    </div>
+  {% endfor %}
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>Approval rate by income segment</h2>
+    {% for seg, rate, count in data.by_income %}
+      <div class="bar-row">
+        <span class="bar-key wide">{{ seg }}</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: {{ rate }}%"></div></div>
+        <span class="bar-val">{{ rate }}%</span>
+      </div>
+    {% endfor %}
+    <p class="muted">Approval is driven by credit history, not income — so rates are
+       similar across income bands. Income affects loan <em>size</em>, not the yes/no.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Approval rate by age group</h2>
+    {% for grp, rate, count in data.by_age %}
+      <div class="bar-row">
+        <span class="bar-key" style="width:64px">{{ grp }}</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: {{ rate }}%"></div></div>
+        <span class="bar-val">{{ rate }}%</span>
+        <span class="bar-val muted" style="width:80px">n={{ "{:,}".format(count) }}</span>
+      </div>
+    {% endfor %}
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Risk exposure &amp; projected interest income <span class="muted">by tier</span></h2>
+  <div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr><th>Tier</th><th>Approved customers</th><th>Loan book</th>
+          <th>Avg loan</th><th>Projected interest income</th></tr>
+    </thead>
+    <tbody>
+      {% for e in data.exposure %}
+      <tr>
+        <td><span class="pill tier-{{ e.tier }}">{{ e.tier }}</span></td>
+        <td class="num">{{ "{:,}".format(e.customers) }}</td>
+        <td class="num">{{ e.loan_book | inr_compact }}</td>
+        <td class="num">{{ e.avg_loan | inr_compact }}</td>
+        <td class="num">{{ e.interest_income | inr_compact }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr class="best">
+        <td><b>Total</b></td>
+        <td class="num"><b>{{ "{:,}".format(data.exposure | sum(attribute='customers')) }}</b></td>
+        <td class="num"><b>{{ (data.exposure | sum(attribute='loan_book')) | inr_compact }}</b></td>
+        <td></td>
+        <td class="num"><b>{{ data.total_interest_income | inr_compact }}</b></td>
+      </tr>
+    </tfoot>
+  </table>
+  </div>
+  <p class="muted">Interest income is the total interest payable over each loan's full
+     tenure if repaid on schedule — the bank's projected return on this loan book.</p>
+</section>
+
+{% endblock %}
